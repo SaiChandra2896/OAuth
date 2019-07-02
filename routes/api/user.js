@@ -13,8 +13,7 @@ const validateLoginInput = require('../../validation/login');
 
 //get model
 const User = require('../../models/User');
-// const rand = rand = Math.floor((Math.random() * 100) + 54);;;
-const rand = 72;
+// const rand = rand = Math.floor((Math.random() * 100) + 54);
 let mailOptions = {};
 
 const smtpTransport = nodemailer.createTransport({
@@ -26,13 +25,12 @@ const smtpTransport = nodemailer.createTransport({
 });
 
 router.post('/register', (req, res) => {
-
   //get errors object
   const { errors, isValid } = validateRegisterInput(req.body);
   if (!isValid) {
     return res.status(400).json(errors);
   }
-
+  const rand = Math.floor((Math.random() * 100) + 54);
   User.findOne({ email: req.body.email }).then((user) => {
     if (user) {
       return res.status(400).json({ error: 'User exists' });
@@ -41,7 +39,8 @@ router.post('/register', (req, res) => {
       const newUser = new User({
         name: req.body.name,
         email: req.body.email,
-        password: req.body.password
+        password: req.body.password,
+        random: rand
       });
 
       bcrypt.genSalt(10, (err, salt) => {
@@ -108,30 +107,22 @@ router.post('/login', (req, res) => {
 });
 
 router.get('/verify', (req, res) => {
-  console.log(mailOptions);
-  const host = req.get('host');
-  console.log(req.protocol + ":/" + req.get('host'));
-  if ((req.protocol + "://" + req.get('host')) == ("http://" + host)) {
-    console.log("Domain is matched. Information is from Authentic email");
-  }
-  console.log('qre', req.query.id, rand);
-  if (req.query.id == rand) {
-    console.log("email is verified");
-    res.end("<h1>Email " + mailOptions.to + " is been Successfully verified");
-    // console.log('abc');
-    // console.log(mailOptions.to);
-    User.findOne({ email: mailOptions.to }).then(user => {
+  // console.log('abc');
+  // console.log(mailOptions.to);
+  User.findOne({ email: mailOptions.to }).then(user => {
+    if (req.query.id == user.random) {
       user.confirmation = true;
-      user.save().then(user => console.log('uu', user));
-    });
-  }
-  else {
-    console.log("email is not verified");
-    res.end("<h1>Bad Request</h1>");
-  }
+      user.save().then(user => {
+        res.json({
+          status: 'user successfully verified',
+          user,
+        });
+      });
+    }
+    else {
+      res.json({ error: badrequest });
+    }
 
+  });
 });
-
-
-
 module.exports = router;

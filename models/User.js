@@ -19,6 +19,10 @@ const UserSChema = new Schema({
     type: Boolean,
     default: false
   },
+  random: {
+    type: Number,
+    required: true
+  },
   date: {
     type: Date,
     default: Date.now
