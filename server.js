@@ -2,6 +2,8 @@ const mongoose = require('mongoose');
 const express = require('express');
 const bodyParser = require('body-parser');
 
+const user = require('./routes/api/user');
+
 const app = express();
 
 //use body parser to parse incoming request
@@ -16,6 +18,8 @@ mongoose.connect(db, { useNewUrlParser: true }).then(() => console.log('mongodb 
   .catch(err => console.log(err));
 
 const port = process.env.PORT || 5000;
+
+app.use('/api/user', user);
 
 app.listen(port, () => {
   console.log('Server is up on port ' + port);
