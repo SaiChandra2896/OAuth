@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const express = require('express');
 const bodyParser = require('body-parser');
+const passport = require('passport');
 
 const user = require('./routes/api/user');
 
@@ -18,6 +19,9 @@ mongoose.connect(db, { useNewUrlParser: true }).then(() => console.log('mongodb 
   .catch(err => console.log(err));
 
 const port = process.env.PORT || 5000;
+
+app.use(passport.initialize());//initialize passport
+require('./config/passport')(passport);//configure passport
 
 app.use('/api/user', user);
 
