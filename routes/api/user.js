@@ -3,10 +3,19 @@ const router = express.Router();
 
 const keys = require('../../config/keys');
 
+//get validation files
+const validateRegisterInput = require('../../validation/register');
+
 //get model
 const User = require('../../models/User');
 
 router.post('/register', (req, res) => {
+
+  //get errors object
+  const { errors, isValid } = validateRegisterInput(req.body);
+  if (!isValid) {
+    return res.status(400).json(errors);
+  }
 
   User.findOne({ email: req.body.email }).then((user) => {
     if (user) {
