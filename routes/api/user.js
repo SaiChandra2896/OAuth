@@ -8,6 +8,7 @@ const keys = require('../../config/keys');
 
 //get validation files
 const validateRegisterInput = require('../../validation/register');
+const validateLoginInput = require('../../validation/login');
 
 //get model
 const User = require('../../models/User');
@@ -51,9 +52,18 @@ router.post('/login', (req, res) => {
 
   //find user using email
   User.findOne({ email }).then((user) => {
+    //validation for login
+    const { errors, isValid } = validateLoginInput(req.body);
+
+    if (!isValid) {
+      return res.status(400).json(errors);
+    }
     if (!user) {
       return res.json({ error: 'User not found please sign up' });
     }
+    // if (!user.confirmed) {
+    //   return res.json({ error: 'please confirm email to login' });
+    // }
     bcrypt.compare(password, user.password).then((passwordmatched) => {
       if (passwordmatched) {
         const payload = { id: user.id, name: user.name };//creating payload for jwt
