@@ -3,6 +3,7 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 //const passport = require('passport');
 const jwt = require('jsonwebtoken');
+const nodemailer = require('nodemailer');
 
 const keys = require('../../config/keys');
 
@@ -12,6 +13,14 @@ const validateLoginInput = require('../../validation/login');
 
 //get model
 const User = require('../../models/User');
+
+const smtpTransport = nodemailer.createTransport({
+  service: "Gmail",
+  auth: {
+    user: "saichandranani143@gmail.com",
+    pass: "saichandra"
+  }
+});
 
 router.post('/register', (req, res) => {
 
@@ -44,6 +53,21 @@ router.post('/register', (req, res) => {
       });
     }
   });
+  const rand = Math.floor((Math.random() * 100) + 54);
+  const link = 'http://localhost:5000/api/user/verify?id=' + rand;
+  const mailOptions = {
+    to: req.body.email,
+    subject: 'Please confirm your email account',
+    html: `Hello, <br> Please click on the link to verify your email. <br><a href=${link}>Click here to verify</a>`
+  }
+  smtpTransport.sendMail(mailOptions, (err, res) => {
+    if (err) {
+      console.log(err);
+    }
+    else {
+      res.json({ sent: 'email sent' });
+    }
+  });
 });
 
 router.post('/login', (req, res) => {
@@ -61,9 +85,9 @@ router.post('/login', (req, res) => {
     if (!user) {
       return res.json({ error: 'User not found please sign up' });
     }
-    // if (!user.confirmed) {
-    //   return res.json({ error: 'please confirm email to login' });
-    // }
+    if (!user.confirmed) {
+      return res.json({ error: 'please confirm email to login' });
+    }
     bcrypt.compare(password, user.password).then((passwordmatched) => {
       if (passwordmatched) {
         const payload = { id: user.id, name: user.name };//creating payload for jwt
@@ -79,6 +103,11 @@ router.post('/login', (req, res) => {
       }
     })
   });
+});
+
+router.get('/verify', (req, res) => {
+
+
 });
 
 
