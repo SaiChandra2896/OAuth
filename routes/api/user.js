@@ -107,6 +107,7 @@ router.post('/login', (req, res) => {
 });
 
 router.get('/verify', (req, res) => {
+
   // console.log('abc');
   // console.log(mailOptions.to);
   User.findOne({ email: mailOptions.to }).then(user => {
