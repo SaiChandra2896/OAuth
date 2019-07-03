@@ -63,7 +63,7 @@ router.post('/register', (req, res) => {
   }
   smtpTransport.sendMail(mailOptions, (err, res) => {
     if (err) {
-      console.log(err);
+      res.json({ error: err });
     }
     else {
       res.json({ sent: 'email sent' });
